@@ -1,4 +1,12 @@
 //: Playground - noun: a place where people can play
+
+// Define players teams:
+var teamSharks = [[String: String]]()
+var teamDragons = [[String: String]]()
+var teamRaptors = [[String: String]]()
+let teams = [teamSharks, teamDragons, teamRaptors]
+
+// Define players collection
 let players: [[String: String]] = [
     ["name" : "Joe Smith", "Height" : "42", "experience" : "yes", "guardianName" : "Jim and Jan Smith"],
     ["name" : "Jill Tanner", "Height" : "36", "experience" : "yes", "guardianName" : "Clara Tanner"],
@@ -19,3 +27,103 @@ let players: [[String: String]] = [
     ["name" : "Les Clay", "Height" : "42", "experience" : "yes", "guardianName" : "Wynonna Brown"],
     ["name" : "Herschel Krustofski", "Height" : "45", "experience" : "yes", "guardianName" : "Hyman and Rachel Krustofski"],
 ]
+
+/**
+** Split players into experienced and unexperienced team groups
+**
+**/
+func extractExperiencedPlayers(allPlayers players: [[String: String]]) -> (experienced: [[String: String]], inExperienced: [[String: String]] ) {
+    
+    var experiencedPlayers = [[String: String]]()
+    var inExperiencedPlayers = [[String: String]]()
+    
+    for player in players {
+        if player["experience"] == "yes" {
+            experiencedPlayers.append(player)
+        } else if player["experience"] == "no" {
+            inExperiencedPlayers.append(player)
+        }
+    }
+    
+    return (experiencedPlayers, inExperiencedPlayers)
+}
+
+// Create the groups;
+let playersGroups = extractExperiencedPlayers(allPlayers: players)
+
+// Easy to read debugg
+print("Number of exp. players - \(playersGroups.experienced.count)")
+for player in playersGroups.experienced {
+    let index = playersGroups.experienced.firstIndex(of: player)
+    
+    print("\(index!) Player Name --- \(player["name"]!)")
+}
+
+func assignToTeams(_ players: [[String: String]], _ teams: [[[String : String]]]) -> [[[String: String]]] {
+    let range = players.count / teams.count
+    var playerTeamsNew = [[[String: String]]]()
+    for counterMark in stride(from: 0, to: players.count, by: range) {
+        let teamTest = Array(players[counterMark..<counterMark + range])
+        playerTeamsNew.append(teamTest)
+    }
+    return playerTeamsNew;
+}
+
+var experiencedTeam = assignToTeams(playersGroups.experienced, teams)
+var beginnerTeam = assignToTeams(playersGroups.inExperienced, teams)
+
+for index in experiencedTeam.indices {
+    print("team \(index):")
+
+    for player in experiencedTeam[index] {
+        print("--- \(player["name"]!)")
+    }
+}
+
+print("--- ---- ---- ---")
+print("--- Beginner Teams ---")
+
+for index in beginnerTeam.indices {
+    print("team \(index):")
+    
+    for player in beginnerTeam[index] {
+        print("--- \(player["name"]!)")
+    }
+}
+
+// Finally lets form the gangs
+func makeTheTeams(teamsNumber teams : Int, teamBeginners beginners : [[[String: String]]], teamExperienced experienced : [[[String: String]]]) -> [[[String: String]]] {
+    var teamCopy = beginners
+    
+    for teamIndex in 0..<teams {
+        teamCopy[teamIndex].append(contentsOf: experienced[teamIndex])
+    }
+   
+    return teamCopy
+}
+
+var theTeams = makeTheTeams(teamsNumber: teams.count, teamBeginners: beginnerTeam, teamExperienced: experiencedTeam)
+
+print("--- ---- ---- ---")
+print("--- All teams ---")
+
+for index in theTeams.indices {
+    print("team \(index):")
+    
+    for player in theTeams[index] {
+        print("--- \(player["name"]!)")
+    }
+}
+
+//let teamDragons
+var teamNames = ["Dragons", "Sahrsk", "Raptors"]
+var dummyTeams = [String: [[String: Any]] ]()
+
+for i in 0..<teamNames.count {
+    dummyTeams[teamNames[i]] = []
+}
+
+//teams[teamNames[index]]?.append(tallestPlayer[0])
+
+print(dummyTeams)
+

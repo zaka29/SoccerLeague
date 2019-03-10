@@ -1,12 +1,10 @@
 //: Playground - noun: a place where people can play
 
-// Define players teams:
-var teamSharks = [[String: String]]()
-var teamDragons = [[String: String]]()
-var teamRaptors = [[String: String]]()
-let teams = [teamSharks, teamDragons, teamRaptors]
-
-// Define players collection
+/**
+** Initial data: teams, practice game dates, collection of the players
+**/
+let teams = ["Dragons", "Sharks", "Raptors"]
+let gameDates  = ["Dragons": "March 17, 1pm", "Sharks": "March 17, 3pm", "Raptors": "March 18, 1pm"]
 let players: [[String: String]] = [
     ["name" : "Joe Smith", "Height" : "42", "experience" : "yes", "guardianName" : "Jim and Jan Smith"],
     ["name" : "Jill Tanner", "Height" : "36", "experience" : "yes", "guardianName" : "Clara Tanner"],
@@ -29,8 +27,7 @@ let players: [[String: String]] = [
 ]
 
 /**
-** Split players into experienced and unexperienced team groups
-**
+**  Function: Split players into experienced and beginner groups collections;
 **/
 func extractExperiencedPlayers(allPlayers players: [[String: String]]) -> (experienced: [[String: String]], inExperienced: [[String: String]] ) {
     
@@ -51,47 +48,26 @@ func extractExperiencedPlayers(allPlayers players: [[String: String]]) -> (exper
 // Create the groups;
 let playersGroups = extractExperiencedPlayers(allPlayers: players)
 
-// Easy to read debugg
-print("Number of exp. players - \(playersGroups.experienced.count)")
-for player in playersGroups.experienced {
-    let index = playersGroups.experienced.firstIndex(of: player)
-    
-    print("\(index!) Player Name --- \(player["name"]!)")
-}
-
-func assignToTeams(_ players: [[String: String]], _ teams: [[[String : String]]]) -> [[[String: String]]] {
+/**
+**  Slice given group of players into the teams with equal number of players per each team based on given number of teams
+**/
+func dividePlayersIntoTeams(_ players: [[String: String]], _ teams: [String]) -> [[[String: String]]] {
     let range = players.count / teams.count
-    var playerTeamsNew = [[[String: String]]]()
+    var teamContainer = [[[String: String]]]()
     for counterMark in stride(from: 0, to: players.count, by: range) {
-        let teamTest = Array(players[counterMark..<counterMark + range])
-        playerTeamsNew.append(teamTest)
+        let team = Array(players[counterMark..<counterMark + range])
+        teamContainer.append(team)
     }
-    return playerTeamsNew;
+    return teamContainer;
 }
 
-var experiencedTeam = assignToTeams(playersGroups.experienced, teams)
-var beginnerTeam = assignToTeams(playersGroups.inExperienced, teams)
+var experiencedTeam = dividePlayersIntoTeams(playersGroups.experienced, teams)
+var beginnerTeam = dividePlayersIntoTeams(playersGroups.inExperienced, teams)
 
-for index in experiencedTeam.indices {
-    print("team \(index):")
-
-    for player in experiencedTeam[index] {
-        print("--- \(player["name"]!)")
-    }
-}
-
-print("--- ---- ---- ---")
-print("--- Beginner Teams ---")
-
-for index in beginnerTeam.indices {
-    print("team \(index):")
-    
-    for player in beginnerTeam[index] {
-        print("--- \(player["name"]!)")
-    }
-}
-
-// Finally lets form the gangs
+/**
+**  Finally combine the beginner players with evenly allocated experienced players
+**  strore data in array of dictionaries - players nested in the teams ductionaries
+**/
 func makeTheTeams(teamsNumber teams : Int, teamBeginners beginners : [[[String: String]]], teamExperienced experienced : [[[String: String]]]) -> [[[String: String]]] {
     var teamCopy = beginners
     
@@ -102,28 +78,47 @@ func makeTheTeams(teamsNumber teams : Int, teamBeginners beginners : [[[String: 
     return teamCopy
 }
 
-var theTeams = makeTheTeams(teamsNumber: teams.count, teamBeginners: beginnerTeam, teamExperienced: experiencedTeam)
+var soccerTeamsCombined = makeTheTeams(teamsNumber: teams.count, teamBeginners: beginnerTeam, teamExperienced: experiencedTeam)
+var soccerTeamsDivided = [String: [[[String: String]]] ]()
 
-print("--- ---- ---- ---")
-print("--- All teams ---")
+// generate the team dictionary containers based on given number of teams
+for i in 0..<teams.count {
+    soccerTeamsDivided[teams[i]] = []
+}
 
-for index in theTeams.indices {
-    print("team \(index):")
+// populates the teams dictionary containers
+for teamIndex in teams.indices {
+    soccerTeamsDivided[teams[teamIndex]]?.append(soccerTeamsCombined[teamIndex])
+}
+
+// define letters collection
+var letters = [String]()
+
+/**
+**  Format nice invitation letter
+**/
+func composeLetter(_ team: String, _ playerName: String, _ guardianName: String, _ practiceDate: String) -> String {
+    return """
+        Dear \(guardianName),
     
-    for player in theTeams[index] {
-        print("--- \(player["name"]!)")
+        We are excited to inform you that \(playerName) will represnt the colours of the \(team)
+        and the teams practices start on \(practiceDate)
+    
+        School Sports Committee
+    """
+}
+
+// Generate invitation letters
+for (key, _) in soccerTeamsDivided {
+    for players in soccerTeamsDivided[key]! {
+        for player in players {
+            let letter = composeLetter(key, player["name"]!, player["guardianName"]!, gameDates[key]!)
+            letters.append(letter)
+        }
     }
 }
 
-//let teamDragons
-var teamNames = ["Dragons", "Sahrsk", "Raptors"]
-var dummyTeams = [String: [[String: Any]] ]()
-
-for i in 0..<teamNames.count {
-    dummyTeams[teamNames[i]] = []
+for letter in letters {
+    print("    --------------------")
+    print(letter)
 }
-
-//teams[teamNames[index]]?.append(tallestPlayer[0])
-
-print(dummyTeams)
-
